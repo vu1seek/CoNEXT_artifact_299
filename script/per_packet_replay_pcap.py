@@ -240,7 +240,7 @@ if __name__ == "__main__":
     if args.sk_mapping:
         sk_mapping = read_wami_tcp_state_mapping_file(args.sk_mapping)
 
-    with open(args.output + '.%d' % args.inst_id, 'w') as fout:
+    with open(args.output + '.%d', 'w') as fout:
         cnt = 0
         for pcap_fname in pcap_list:
             cnt += 1
