@@ -12,7 +12,7 @@ If you want to load the full-scale MAWI dataset to replicate the main results in
 1. Run `sudo sh setup_kernel_env.sh [PATH_TO_PCAP] full_test` -- this command will restart your OS, and activate the newly installed kernel;
 2. Run `sudo sh replicate_results.sh [PATH_TO_PCAP] large_ds` -- this command will train/test the model and paint the figures that exhibit the results shwon in the paper.
 
-If you only want to load the tiny demp PCAP dataset to validate that the artifact works as it claims:
+If you only want to load the tiny demo PCAP dataset to validate that the artifact works as it claims:
 1. Run `sudo sh setup_kernel_env.sh [PATH_TO_PCAP]` -- this command will restart your OS, and activate the newly installed kernel;
 2. Run `sudo sh replicate_results.sh [PATH_TO_PCAP]` -- this command will train/test the model and paint the figures that exhibit the results shwon in the paper.
 
