@@ -1,5 +1,3 @@
-All the following instructions assume the current working directory as the root folder of the cloned repository.
-
 System requirements: our artifact was only tested on Ubuntu 18.04 64-bit; we recommand executing our artifact inside a VM sandbox, as it involves installing customized Linux kernel.
 
 Dependencies: all necessary dependencies can be installed using the command: `sudo pip3 -r requirements.txt`, and this has been included in our script `replicate_results.sh`, so no action needs to be taken other than following the steps listed below.
