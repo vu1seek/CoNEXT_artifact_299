@@ -68,9 +68,15 @@ do
 	python3 test.py --attack-dataset ../data/processed_dataset/$13.csv.test.$attack_type\_max.attack --benign-dataset ../data/processed_dataset/$13.csv.test.$attack_type\_max.benign --rnn-model ../model/rnn_model.pt.$13.$1.$4.$7.$16.$18 --vae-model ../model/vae_model.pt.$13.$1.$2.$3.$5.$8.$14.$15.$16.$17.$18.$19.$20 --loss-list-fpath ../data/losslist/$13.$1.$2.$3.$4.$5.$7.$8.$attack_type*max*.$14.$15.$16.$17.$18.$19.$20 --n-gram $3 --dataset-stats ../data/processed_dataset/$13.csv.train.stats --seed 222 --rnn-hidden-size $1 --input-size $9 --context-mode $14 --partition-mode $15 --rnn-model-type $16 --extra-features $19 --conn-dir $20 > ../log/test_loss.$13.$1.$2.$3.$4.$5.$7.$8.$attack_type.$14.$15.$16.$17.$18.$19.$20.max
 	python3 visualize.py --loss-list-fname $13.$1.$2.$3.$4.$5.$7.$8.$attack_type*max*.$14.$15.$16.$17.$18.$19.$20 --loss-list-dir ../data/losslist --fig-fpath ../data/figs/roc_wami.$13.$1.$2.$3.$4.$5.$7.$8.$attack_type.$14.$15.$16.$17.$18.$19.$20.max --ds-title $attack_type > ../log/roc_score.$13.$1.$2.$3.$4.$5.$7.$8.$attack_type.$14.$15.$16.$17.$18.$19.$20.max --attack-info-fpath ../data/processed_dataset/$13.csv.test.$attack_type\_max.attack.info --n-gram $3
 done
-cat ../log/test_loss.$13.$1.$2.$3.$4.$5.$7.$8.*.$14.$15.$16.$17.$18.$19.$20* > ../log/merged_test_loss.$13.$1.$2.$3.$4.$5.$7.$8.$14.$15.$16.$17.$18.$19.$20.log
-cat ../log/roc_score.$13.$1.$2.$3.$4.$5.$7.$8.*.$14.$15.$16.$17.$18.$19.$20* > ../log/merged_roc_score.$13.$1.$2.$3.$4.$5.$7.$8.$14.$15.$16.$17.$18.$19.$20.log
-cat ../data/losslist/$13.$1.$2.$3.$4.$5.$7.$8.*.$14.$15.$16.$17.$18.$19.$20* > ../data/losslist/$13.$1.$2.$3.$4.$5.$7.$8.$14.$15.$16.$17.$18.$19.$20.merged
+cat ../log/test_loss.$13.$1.$2.$3.$4.$5.$7.$8.*.$14.$15.$16.$17.$18.$19.$20* > ../final_res/merged_test_loss.$13.$1.$2.$3.$4.$5.$7.$8.$14.$15.$16.$17.$18.$19.$20.log
+cat ../log/roc_score.$13.$1.$2.$3.$4.$5.$7.$8.*.$14.$15.$16.$17.$18.$19.$20* > ../final_res/merged_roc_score.$13.$1.$2.$3.$4.$5.$7.$8.$14.$15.$16.$17.$18.$19.$20.log
 rm ../log/test_loss.$13.$1.$2.$3.$4.$5.$7.$8.*.$14.$15.$16.$17.$18.$19.$20*
 rm ../log/roc_score.$13.$1.$2.$3.$4.$5.$7.$8.*.$14.$15.$16.$17.$18.$19.$20*
+
+echo "Adding header for producing the final resutls..."
+echo "LABEL_OPT,ATTACK_TYPE,AUC_ROC_SCORE,TPR@FPR0.07,TPR@FPR009,EER_SCORE,TOP1_HIT_ACC,TOP3_HIT_ACC,TOP5_HIT_ACC" > ../final_res/header.txt
+cat ../final_res/header.txt ../final_res/merged_roc_score.$13.$1.$2.$3.$4.$5.$7.$8.$14.$15.$16.$17.$18.$19.$20.log > ../final_res/merged_roc_score_w_header.$13.$1.$2.$3.$4.$5.$7.$8.$14.$15.$16.$17.$18.$19.$20.log
+echo "Printing final results:"
+cat ../final_res/merged_roc_score_w_header.$13.$1.$2.$3.$4.$5.$7.$8.$14.$15.$16.$17.$18.$19.$20.log
+python3 paint_fig.py --fin-our ../final_res/merged_roc_score_w_header.$13.$1.$2.$3.$4.$5.$7.$8.$14.$15.$16.$17.$18.$19.$20.log --merged-res ../final_res/final_results_fig.csv
 fi

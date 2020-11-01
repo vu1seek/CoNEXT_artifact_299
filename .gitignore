@@ -133,6 +133,9 @@ pcaps/
 # Uncompressed dataset files
 *.sample
 
+# Log files
+*.log
+
 # Large-scale datasets
 large_dataset/
 

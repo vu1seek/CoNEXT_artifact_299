@@ -98,12 +98,13 @@ NAME_MAP = {
 }
 
 
-def read_and_merge_res(our_app_res_fpath, baseline_res_fpath, kitsune_res_fpath, dump_fpath):
+def read_and_merge_res(our_app_res_fpath, dump_fpath):
     def read_data(fpath, opt=None):
         with open(fpath, 'r') as fin:
             d = {}
             names_by_work = {"SymTCP": [], "Liberate": [], "Geneva": []}
             data = fin.readlines()
+            del data[0]
             for row in data:
                 if row.startswith('#'):
                     continue
@@ -133,13 +134,8 @@ def read_and_merge_res(our_app_res_fpath, baseline_res_fpath, kitsune_res_fpath,
 
     our_app_d, names_by_work = read_data(
         our_app_res_fpath, opt='tool_log_format')
-    bl_app_d, _ = read_data(baseline_res_fpath, opt='tool_log_format')
-    k_d, _ = read_data(kitsune_res_fpath, opt='kitsune_log_format')
 
     dump = []
-
-    assert len(our_app_d) == len(bl_app_d) == len(
-        k_d), "[ERROR] Different sizes [%d, %d, %d]" % (len(our_app_d), len(bl_app_d), len(k_d))
 
     dump.append("#SymTCP")
     for ori_name in names_by_work["SymTCP"]:
@@ -147,7 +143,7 @@ def read_and_merge_res(our_app_res_fpath, baseline_res_fpath, kitsune_res_fpath,
             continue
         name = NAME_MAP[ori_name]
         dump.append(
-            ','.join([name, our_app_d[ori_name], bl_app_d[ori_name], k_d[ori_name]]))
+            ','.join([name, our_app_d[ori_name]]))
 
     dump.append("#Liberate")
     for ori_name in names_by_work["Liberate"]:
@@ -155,7 +151,7 @@ def read_and_merge_res(our_app_res_fpath, baseline_res_fpath, kitsune_res_fpath,
             continue
         name = NAME_MAP[ori_name]
         dump.append(
-            ','.join([name, our_app_d[ori_name], bl_app_d[ori_name], k_d[ori_name]]))
+            ','.join([name, our_app_d[ori_name]]))
 
     dump.append("#Geneva")
     for ori_name in names_by_work["Geneva"]:
@@ -163,7 +159,7 @@ def read_and_merge_res(our_app_res_fpath, baseline_res_fpath, kitsune_res_fpath,
             continue
         name = NAME_MAP[ori_name]
         dump.append(
-            ','.join([name, our_app_d[ori_name], bl_app_d[ori_name], k_d[ori_name]]))
+            ','.join([name, our_app_d[ori_name]]))
 
     with open(dump_fpath, 'w') as fout:
         for line in dump:
@@ -186,66 +182,42 @@ def read_data(fpath):
         else:
             if curr_tag == 'SymTCP':
                 primary_type, secondary_type, variant, \
-                    cxt_res, cxt_tpr001, cxt_tpr005, cxt_eer_score, cxt_top1_hit_acc, cxt_top3_hit_acc, cxt_top5_hit_acc, \
-                    baseline_res, baseline_tpr001, baseline_tpr005, baseline_eer_score, baseline_top1_hit_acc, baseline_top3_hit_acc, baseline_top5_hit_acc, \
-                    kitsune_res, kitsune_tpr001, kitsune_tpr005, kitsune_eer_score = row.split(
-                        ',')
-                cxt_res, cxt_tpr001, cxt_tpr005, cxt_eer_score, cxt_top1_hit_acc, cxt_top3_hit_acc, cxt_top5_hit_acc, \
-                    baseline_res, baseline_tpr001, baseline_tpr005, baseline_eer_score, baseline_top1_hit_acc, baseline_top3_hit_acc, baseline_top5_hit_acc, \
-                    kitsune_res, kitsune_tpr001, kitsune_tpr005, kitsune_eer_score = float(cxt_res), float(cxt_tpr001), \
-                    float(cxt_tpr005), float(cxt_eer_score), float(cxt_top1_hit_acc), float(cxt_top3_hit_acc), float(cxt_top5_hit_acc), \
-                    float(baseline_res), float(baseline_tpr001), float(baseline_tpr005), float(baseline_eer_score), \
-                    float(baseline_top1_hit_acc), float(baseline_top3_hit_acc), float(baseline_top5_hit_acc), \
-                    float(kitsune_res), float(kitsune_tpr001), float(
-                        kitsune_tpr005), float(kitsune_eer_score)
+                    cxt_res, cxt_tpr001, cxt_tpr005, cxt_eer_score, cxt_top1_hit_acc, cxt_top3_hit_acc, cxt_top5_hit_acc = row.split(',')
+                cxt_res, cxt_tpr001, cxt_tpr005, cxt_eer_score, cxt_top1_hit_acc, cxt_top3_hit_acc, cxt_top5_hit_acc = float(cxt_res), float(cxt_tpr001), \
+                    float(cxt_tpr005), float(cxt_eer_score), float(cxt_top1_hit_acc), float(cxt_top3_hit_acc), float(cxt_top5_hit_acc)
                 if primary_type not in data_dict[curr_tag]:
                     data_dict[curr_tag][primary_type] = {}
                 if secondary_type not in data_dict[curr_tag][primary_type]:
                     data_dict[curr_tag][primary_type][secondary_type] = {}
                 data_dict[curr_tag][primary_type][secondary_type][variant] = (
-                    cxt_res, cxt_tpr001, cxt_tpr005, cxt_eer_score, cxt_top1_hit_acc, cxt_top3_hit_acc, cxt_top5_hit_acc,
-                    baseline_res, baseline_tpr001, baseline_tpr005, baseline_eer_score, baseline_top1_hit_acc, baseline_top3_hit_acc, baseline_top5_hit_acc,
-                    kitsune_res, kitsune_tpr001, kitsune_tpr005, kitsune_eer_score)
+                    cxt_res, cxt_tpr001, cxt_tpr005, cxt_eer_score, cxt_top1_hit_acc, cxt_top3_hit_acc, cxt_top5_hit_acc)
             if curr_tag in {'Liberate', 'Geneva'}:
                 primary_type, secondary_type, \
-                    cxt_res, cxt_tpr001, cxt_tpr005, cxt_eer_score, cxt_top1_hit_acc, cxt_top3_hit_acc, cxt_top5_hit_acc, \
-                    baseline_res, baseline_tpr001, baseline_tpr005, baseline_eer_score, baseline_top1_hit_acc, baseline_top3_hit_acc, baseline_top5_hit_acc, \
-                    kitsune_res, kitsune_tpr001, kitsune_tpr005, kitsune_eer_score = row.split(
+                    cxt_res, cxt_tpr001, cxt_tpr005, cxt_eer_score, cxt_top1_hit_acc, cxt_top3_hit_acc, cxt_top5_hit_acc = row.split(
                         ',')
-                cxt_res, cxt_tpr001, cxt_tpr005, cxt_eer_score, cxt_top1_hit_acc, cxt_top3_hit_acc, cxt_top5_hit_acc, \
-                    baseline_res, baseline_tpr001, baseline_tpr005, baseline_eer_score, baseline_top1_hit_acc, baseline_top3_hit_acc, baseline_top5_hit_acc, \
-                    kitsune_res, kitsune_tpr001, kitsune_tpr005, kitsune_eer_score = float(cxt_res), float(cxt_tpr001), \
-                    float(cxt_tpr005), float(cxt_eer_score), float(cxt_top1_hit_acc), float(cxt_top3_hit_acc), float(cxt_top5_hit_acc), \
-                    float(baseline_res), float(baseline_tpr001), float(baseline_tpr005), float(baseline_eer_score), \
-                    float(baseline_top1_hit_acc), float(baseline_top3_hit_acc), float(baseline_top5_hit_acc), \
-                    float(kitsune_res), float(kitsune_tpr001), float(
-                        kitsune_tpr005), float(kitsune_eer_score)
+                cxt_res, cxt_tpr001, cxt_tpr005, cxt_eer_score, cxt_top1_hit_acc, cxt_top3_hit_acc, cxt_top5_hit_acc = float(cxt_res), float(cxt_tpr001), \
+                    float(cxt_tpr005), float(cxt_eer_score), float(cxt_top1_hit_acc), float(cxt_top3_hit_acc), float(cxt_top5_hit_acc)
                 if primary_type not in data_dict[curr_tag]:
                     data_dict[curr_tag][primary_type] = {}
-                data_dict[curr_tag][primary_type][secondary_type] = (
-                    cxt_res, cxt_tpr001, cxt_tpr005, cxt_eer_score, cxt_top1_hit_acc, cxt_top3_hit_acc, cxt_top5_hit_acc,
-                    baseline_res, baseline_tpr001, baseline_tpr005, baseline_eer_score, baseline_top1_hit_acc, baseline_top3_hit_acc, baseline_top5_hit_acc,
-                    kitsune_res, kitsune_tpr001, kitsune_tpr005, kitsune_eer_score)
+                data_dict[curr_tag][primary_type][secondary_type] = (cxt_res, cxt_tpr001, cxt_tpr005, cxt_eer_score, cxt_top1_hit_acc, cxt_top3_hit_acc, cxt_top5_hit_acc)
     return data_dict
 
 
 def draw(data_dict, type='detection'):
     def draw_a_subplot(ax, y, title, remove_yticks=False, plot_type='detection'):
         if plot_type == 'detection':
-            x = [i for i in range(6)]
-            idx_lst = [0, 7, 14, 3, 10, 17]
+            x = [i for i in range(2)]
+            idx_lst = [0, 3]
             scores = [y[i] for i in idx_lst]
-            bars = ax.bar(x, scores, color=('#F96E46', '#FFE3E3', '#00E8FC',
-                                            '#F96E46', '#FFE3E3', '#00E8FC'))
+            bars = ax.bar(x, scores, color=('#F96E46', '#FFE3E3'))
 
-            hatch_lst = ('/', '/', '/', '\\', '\\',  '\\')
+            hatch_lst = ('/', '/')
         if plot_type == 'localization':
-            x = [i for i in range(3)]
-            idx_lst = [6, 5, 4]
+            x = [i for i in range(1)]
+            idx_lst = [6]
             scores = [y[i] for i in idx_lst]
-            bars = ax.bar(x, scores, color=(
-                '#F96E46', '#F96E46', '#F96E46'))
-            hatch_lst = ('+', 'x', '.')
+            bars = ax.bar(x, scores, color=('#F96E46'))
+            hatch_lst = ('+')
         ax.set_xticklabels([])
         if remove_yticks:
             ax.set_yticklabels([])
@@ -369,14 +341,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='This script generates figure for showing detection results.')
     parser.add_argument('--fin-our', type=str)
-    parser.add_argument('--fin-baseline', type=str)
-    parser.add_argument('--fin-kitsune', type=str)
     parser.add_argument('--merged-res', type=str)
     args = parser.parse_args()
 
-    read_and_merge_res(args.fin_our, args.fin_baseline,
-                       args.fin_kitsune, args.merged_res)
+    read_and_merge_res(args.fin_our, args.merged_res)
 
     data_dict = read_data(args.merged_res)
     draw(data_dict)
-    # draw(data_dict, type='localization')
+    draw(data_dict, type='localization')

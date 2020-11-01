@@ -155,8 +155,8 @@ def parse_pcap_file(pcap_file_path, sk_mapping, pcap_fname_type="symtcp", debug=
     global ALL_IP_OPT_SET, ALL_TCP_OPT_SET
     try:
         packets = rdpcap(pcap_file_path)
-    except Exception:
-        print("[ERROR] Pcap reading error: %s")
+    except Exception as err:
+        print("[ERROR] Pcap reading error: %s" % err)
         return ERR_PCAP_MALFORMAT
 
     pkt_trace = []
@@ -169,7 +169,7 @@ def parse_pcap_file(pcap_file_path, sk_mapping, pcap_fname_type="symtcp", debug=
         timestamp = date + time
     if pcap_fname_type == "wami":
         if sk_mapping:
-            date, pcap_id = pcap_fname.split("-")
+            date, pcap_id = pcap_fname.rsplit("-")
             num_packet = "-1"
             timestamp = pcap_id
             if pcap_id not in sk_mapping:
@@ -335,6 +335,7 @@ if __name__ == "__main__":
                         help='Whether to dump the debugging information.')
     parser.add_argument('--use-dummy-state', action='store_true',
                         help='Whether to use dummy states.')
+    parser.add_argument('--use-small-dataset', action='store_true')
     args = parser.parse_args()
 
     if args.dataset_type == "symtcp":
@@ -353,7 +354,10 @@ if __name__ == "__main__":
             sk_mapping = read_wami_tcp_state_mapping_file(args.sk_mapping_path)
             pcap_filenames = []
             for pcap_id, _ in sk_mapping.items():
-                pcap_filenames.append('202004071400-%s.pcap' % pcap_id)
+                if args.use_small_dataset:
+                    pcap_filenames.append('smallFlows-%s.pcap' % pcap_id)
+                else:
+                    pcap_filenames.append('202004071400-%s.pcap' % pcap_id)
         print("[INFO] Size of sk_state mapping: %d" % len(sk_mapping))
 
     pcap_filenames = sorted(pcap_filenames)
